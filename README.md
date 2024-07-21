@@ -11,6 +11,7 @@ I just wanted to share this in case anyone else wants to use it. It should work 
 The application creates a system tray icon using the AppIndicator3 library, which is a part of the GTK project *(this should make it compatible with various Linux panels that support AppIndicators)*. It utilizes the `playerctl` command-line tool, making it work with most media players and web applications that supports MPRIS (Media Player Remote Interfacing Specification).
 
 ### Dependencies:
+* `python`
 * `libappindicator`(-gtk3)
 * `playerctl`
 
