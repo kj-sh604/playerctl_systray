@@ -57,11 +57,13 @@ else
 fi
 ```
 
-Feel free to write something similar.
+Feel free to implement something similar.
 
 
 ## Other Implementations:
 * xaymup's [media-control-indicator](https://github.com/xaymup/media-control-indicator) ✨
-    * I've actually contributed to this repo in the past and I would say it's more "feature-complete" than my version. I actually highly recommend using it! *I just preferred a simpler and more barebones implementation that's why I kept my version*.
+    * I've actually contributed to this repo in the past and I would say it's more "feature-complete" than my version. I actually highly recommend using it! I just preferred a simpler and more barebones implementation that's why I kept my version.
+
+&nbsp;
 
 Happy hacking everyone! 🧑‍💻🤙
