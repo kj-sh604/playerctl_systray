@@ -4,7 +4,7 @@ This is just a simple and minimal system tray applet I created for my Linux setu
 
 I just wanted to share this in case anyone else wants to use it. It should work well with standalone window managers if you're looking for a simple applet to get up and running without the need to write a widget or panel block.
 
-![Image of the systray applet](img/playerctl_systray.png)
+![Image of the systray applet](https://kj-media.online/pics/playerctl-systray/playerctl_systray.png)
 
 ## Technical Information:
 
