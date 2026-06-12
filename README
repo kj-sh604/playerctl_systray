@@ -1,0 +1,45 @@
+playerctl_systray
+-----------------
+
+simple and minimal system tray applet for controlling media players via playerctl.
+uses AppIndicator3 for broad panel compatibility across linux desktops.
+
+![screenshot](https://kj-media.online/pics/playerctl-systray/playerctl_systray.png)
+
+arch linux deps (system packages)
+  - python
+  - python-gobject
+  - libappindicator-gtk3
+  - playerctl
+
+other distros:
+  - install equivalent python3, pygobject, appindicator3, and playerctl packages.
+
+quick run
+  ./playerctl_systray
+  ./playerctl_systray --help
+  ./playerctl_systray --version
+
+install
+  make install
+
+  # or manually
+  mkdir -p ~/.local/bin
+  install -Dm755 playerctl_systray ~/.local/bin/playerctl_systray
+
+remove
+  make remove
+
+how it works
+  creates a systray icon with a dropdown menu listing active playerctl instances.
+  each instance has play-pause, next, and previous controls.
+  an "-a" submenu controls all players at once.
+  polls every ~1s for player changes and refreshes the menu automatically.
+
+license
+  ISC
+
+links
+  - playerctl: https://github.com/altdesktop/playerctl
+  - xaymup's media-control-indicator (more feature complete):
+    https://github.com/xaymup/media-control-indicator

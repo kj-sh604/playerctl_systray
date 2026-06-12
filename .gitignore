@@ -1,2 +1,3 @@
-playerctl_systray
-playerctl_systray.c
+.venv/
+__pycache__/
+*.pyc

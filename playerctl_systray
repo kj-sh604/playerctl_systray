@@ -1,0 +1,171 @@
+#!/usr/bin/env python3
+
+# playerctl_systray: lightweight system tray applet for playerctl
+
+from __future__ import annotations
+
+import subprocess
+import sys
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+gi.require_version("AppIndicator3", "0.1")
+gi.require_version("GLib", "2.0")
+from gi.repository import AppIndicator3, GLib, Gtk
+
+VERSION = "20260612"
+
+USAGE = """usage: playerctl_systray [OPTIONS]
+  -h, --help      show this help and exit
+  -V, --version   show the current version and exit"""
+
+
+# helpers
+def resolve_icon() -> str:
+    """pick the best available icon for the systray."""
+    icon_theme = Gtk.IconTheme.get_default()
+    candidates = [
+        "audio-x-generic-symbolic",
+        "multimedia-player-symbolic",
+        "multimedia-player",
+        "applications-multimedia",
+        "audio-x-generic",
+    ]
+    for name in candidates:
+        if icon_theme.has_icon(name):
+            return name
+    return "audio-x-generic"
+
+
+# systray applet
+class PlayerctlSystray:
+    def __init__(self) -> None:
+        self.last_instances = self.get_player_instances()
+        self.indicator = AppIndicator3.Indicator.new(
+            "media-control-app",
+            resolve_icon(),
+            AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
+        )
+        self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+        self.indicator.set_menu(self.create_menu())
+
+    def create_menu(self) -> Gtk.Menu:
+        menu = Gtk.Menu()
+
+        instances = self.get_player_instances()
+        if instances:
+            for instance in instances:
+                instance_submenu = Gtk.Menu()
+
+                play_item = Gtk.MenuItem(label="play-pause")
+                play_item.connect("activate", self.play_pause, instance)
+                instance_submenu.append(play_item)
+
+                next_item = Gtk.MenuItem(label="next")
+                next_item.connect("activate", self.next_track, instance)
+                instance_submenu.append(next_item)
+
+                prev_item = Gtk.MenuItem(label="previous")
+                prev_item.connect("activate", self.prev_track, instance)
+                instance_submenu.append(prev_item)
+
+                instance_menu_item = Gtk.MenuItem(label=instance)
+                instance_menu_item.set_submenu(instance_submenu)
+                menu.append(instance_menu_item)
+
+            a_submenu = Gtk.Menu()
+
+            a_pause_item = Gtk.MenuItem(label="pause")
+            a_pause_item.connect("activate", self.a_pause)
+            a_submenu.append(a_pause_item)
+
+            a_play_item = Gtk.MenuItem(label="play")
+            a_play_item.connect("activate", self.a_play)
+            a_submenu.append(a_play_item)
+
+            a_next_item = Gtk.MenuItem(label="next")
+            a_next_item.connect("activate", self.a_next_track)
+            a_submenu.append(a_next_item)
+
+            a_prev_item = Gtk.MenuItem(label="previous")
+            a_prev_item.connect("activate", self.a_prev_track)
+            a_submenu.append(a_prev_item)
+
+            a_menu_item = Gtk.MenuItem(label="-a")
+            a_menu_item.set_submenu(a_submenu)
+            menu.append(a_menu_item)
+        else:
+            no_players_item = Gtk.MenuItem(label="no players found")
+            no_players_item.set_sensitive(False)  # greyed out
+            menu.append(no_players_item)
+
+        menu.append(Gtk.SeparatorMenuItem())  # separator
+
+        quit_item = Gtk.MenuItem(label="quit")
+        quit_item.connect("activate", self.quit)
+        menu.append(quit_item)
+
+        menu.show_all()
+        return menu
+
+    def get_player_instances(self) -> list[str]:
+        result = subprocess.run(
+            ["playerctl", "-l"], capture_output=True, text=True
+        )
+        return result.stdout.strip().split("\n") if result.stdout.strip() else []
+
+    def play_pause(self, _: Gtk.MenuItem, instance: str) -> None:
+        subprocess.run(["playerctl", "-p", instance, "play-pause"])
+
+    def next_track(self, _: Gtk.MenuItem, instance: str) -> None:
+        subprocess.run(["playerctl", "-p", instance, "next"])
+
+    def prev_track(self, _: Gtk.MenuItem, instance: str) -> None:
+        subprocess.run(["playerctl", "-p", instance, "previous"])
+
+    def a_play(self, _: Gtk.MenuItem) -> None:
+        subprocess.run(["playerctl", "-a", "play"])
+
+    def a_pause(self, _: Gtk.MenuItem) -> None:
+        subprocess.run(["playerctl", "-a", "pause"])
+
+    def a_next_track(self, _: Gtk.MenuItem) -> None:
+        subprocess.run(["playerctl", "-a", "next"])
+
+    def a_prev_track(self, _: Gtk.MenuItem) -> None:
+        subprocess.run(["playerctl", "-a", "previous"])
+
+    def quit(self, _: Gtk.MenuItem) -> None:
+        Gtk.main_quit()
+
+    def refresh_menu(self) -> bool:
+        current_instances = self.get_player_instances()
+        if current_instances != self.last_instances:
+            self.indicator.set_menu(self.create_menu())
+            self.last_instances = current_instances
+        return True  # return True so timeout continues
+
+
+# main
+def main() -> None:
+    if len(sys.argv) > 1:
+        arg = sys.argv[1]
+        if arg in ("-h", "--help"):
+            print(USAGE)
+            sys.exit(0)
+        elif arg in ("-V", "--version"):
+            print(f"playerctl_systray {VERSION}")
+            sys.exit(0)
+        else:
+            print(f"error: unknown option '{arg}'", file=sys.stderr)
+            print(USAGE, file=sys.stderr)
+            sys.exit(1)
+
+    app = PlayerctlSystray()
+    GLib.timeout_add(1024, app.refresh_menu)  # poll every ~1s for player changes
+    Gtk.main()
+
+
+if __name__ == "__main__":
+    main()
