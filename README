@@ -4,7 +4,7 @@ playerctl_systray
 simple and minimal system tray applet for controlling media players via playerctl.
 uses AppIndicator3 for broad panel compatibility across linux desktops.
 
-![screenshot](https://kj-media.online/pics/playerctl-systray/playerctl_systray.png)
+screenshot: https://kj-media.online/pics/playerctl-systray/playerctl_systray.png
 
 arch linux deps (system packages)
   - python
