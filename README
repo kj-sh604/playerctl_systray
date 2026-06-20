@@ -37,7 +37,7 @@ how it works
   polls every ~1s for player changes and refreshes the menu automatically.
 
 license
-  ISC
+  0BSD
 
 links
   - playerctl: https://github.com/altdesktop/playerctl
