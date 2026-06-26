@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=20260626.1
+Type=Application
+Terminal=false
+Exec=playerctl_systray
+Name=playerctl_systray
+Icon=audio-x-generic
